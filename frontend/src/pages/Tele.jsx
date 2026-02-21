@@ -4,7 +4,8 @@ const Tele = () => {
   const [turnoActual, setTurnoActual] = useState(null);
   const [ultimosTurnos, setUltimosTurnos] = useState([]);
   const [audioActivado, setAudioActivado] = useState(false);
-  
+  const audioActivadoRef = useRef(false);
+
   // Usamos _id para la referencia del último llamado en MongoDB
   const ultimoIdLlamado = useRef(null);
   const audioRef = useRef(null);
@@ -23,7 +24,7 @@ const Tele = () => {
 
           // Comparamos usando _id para activar el sonido si es un paciente nuevo
           if (ultimoIdLlamado.current !== null && ultimoIdLlamado.current !== turnoEntrante._id) {
-            if (audioRef.current && audioActivado) {
+            if (audioRef.current && audioActivadoRef.current) {
               audioRef.current.currentTime = 0;
               audioRef.current.play().catch(e =>
                 console.log("Error al reproducir audio:", e)
@@ -52,6 +53,7 @@ const Tele = () => {
         audioRef.current.currentTime = 0;
       }).catch(() => {});
     }
+    audioActivadoRef.current = true;
     setAudioActivado(true);
   };
 
