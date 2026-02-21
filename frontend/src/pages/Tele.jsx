@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 const Tele = () => {
   const [turnoActual, setTurnoActual] = useState(null);
   const [ultimosTurnos, setUltimosTurnos] = useState([]);
+  const [audioActivado, setAudioActivado] = useState(false);
   
   // Usamos _id para la referencia del último llamado en MongoDB
   const ultimoIdLlamado = useRef(null);
@@ -22,10 +23,10 @@ const Tele = () => {
 
           // Comparamos usando _id para activar el sonido si es un paciente nuevo
           if (ultimoIdLlamado.current !== null && ultimoIdLlamado.current !== turnoEntrante._id) {
-            if (audioRef.current) {
+            if (audioRef.current && audioActivado) {
               audioRef.current.currentTime = 0;
-              audioRef.current.play().catch(e => 
-                console.log("El navegador requiere interacción previa para reproducir audio:", e)
+              audioRef.current.play().catch(e =>
+                console.log("Error al reproducir audio:", e)
               );
             }
           }
@@ -44,10 +45,29 @@ const Tele = () => {
     return () => clearInterval(intervalo);
   }, [API_URL]); // Agregamos API_URL como dependencia por seguridad
 
+  const activarAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.play().then(() => {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }).catch(() => {});
+    }
+    setAudioActivado(true);
+  };
+
   return (
     <div className="h-screen bg-gray-50 flex overflow-hidden font-sans text-gray-800">
-      
-      <audio 
+
+      {!audioActivado && (
+        <div
+          onClick={activarAudio}
+          className="absolute inset-0 z-50 flex items-center justify-center bg-blue-600 cursor-pointer"
+        >
+          <p className="text-white text-5xl font-bold">Toque para activar</p>
+        </div>
+      )}
+
+      <audio
         ref={audioRef} 
         src="https://actions.google.com/sounds/v1/cartoon/cartoon_cowbell.ogg?hl=es-419" 
         preload="auto" 
