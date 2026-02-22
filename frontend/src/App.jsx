@@ -7,7 +7,7 @@ import Tele from './pages/Tele.jsx';
 function App() {
   return (
     <BrowserRouter>
-      {/* Navbar temporal para desarrollo - Facilita el testeo del front */}
+      {/* Navbar temporal para desarrollo - Facilita el testeo del front
       <nav className="bg-gray-800 p-4 text-white shadow-md">
         <ul className="flex justify-center space-x-8 font-medium">
           <li>
@@ -20,7 +20,7 @@ function App() {
             <Link to="/tv" className="hover:text-blue-400 transition">Pantalla TV</Link>
           </li>
         </ul>
-      </nav>
+      </nav> */}
 
       {/* Contenedor principal de las rutas */}
       <main>
