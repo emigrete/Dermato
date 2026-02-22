@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import Recepcionista from './pages/Recepcionista.jsx';
 import Medico from './pages/Medico.jsx';
 import Tele from './pages/Tele.jsx';
+import Secretarias from './pages/Secretarias.jsx';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/" element={<Recepcionista />} />
           <Route path="/medico" element={<Medico />} />
           <Route path="/tv" element={<Tele />} /> 
+          <Route path="/secretarias" element={<Secretarias />} />
         </Routes>
       </main>
     </BrowserRouter>

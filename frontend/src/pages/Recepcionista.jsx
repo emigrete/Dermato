@@ -1,25 +1,15 @@
 import { useState } from 'react';
 
 const ClienteForm = () => {
-  const [paciente, setPaciente] = useState({
-    nombre: '',
-    apellido: '',
-    medico: '',
-  });
-
+  const [paciente, setPaciente] = useState({ nombre: '', apellido: '', medico: '' });
   const [enviando, setEnviando] = useState(false);
-  const [mensajeExito, setMensajeExito] = useState(false); // Nuevo estado
+  const [mensajeExito, setMensajeExito] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
   const medicosDisponibles = [
-    "Dra. Sonia Sladewski",
-    "Dra. Sauro Virginia",
-    "Dra. Pedrini Florencia",
-    "Dra. Miller Romina",
-    "Dra. Guadalupe Bengoa",
-    "Dra. Lucila Monti",
-    "Dra. Salazar Adriana",
+    "Dra. Sonia Sladewski", "Dra. Sauro Virginia", "Dra. Pedrini Florencia",
+    "Dra. Miller Romina", "Dra. Guadalupe Bengoa", "Dra. Lucila Monti", "Dra. Salazar Adriana",
   ];
 
   const handleChange = (e) => {
@@ -30,13 +20,6 @@ const ClienteForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setEnviando(true);
-
-    const horaActual = new Date().toLocaleTimeString('es-AR', { 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      hour12: false 
-    });
-
     try {
       const response = await fetch(`${API_URL}/api/turnos`, {
         method: 'POST',
@@ -45,12 +28,10 @@ const ClienteForm = () => {
           nombre: paciente.nombre.trim(),
           apellido: paciente.apellido.trim(),
           medico: paciente.medico,
-          hora_turno: horaActual,
         }),
       });
-
       if (response.ok) {
-        setMensajeExito(true); // Mostramos la pantalla de éxito
+        setMensajeExito(true);
         setPaciente({ nombre: '', apellido: '', medico: '' });
       } else {
         alert('Hubo un error al registrarte. Por favor, avisale a la recepcionista.');
@@ -63,83 +44,89 @@ const ClienteForm = () => {
     }
   };
 
-  // PANTALLA DE ÉXITO (Se muestra solo cuando mensajeExito es true)
+  // ── PANTALLA DE ÉXITO ────────────────────────────────────────────────────
   if (mensajeExito) {
     return (
-      <div className="min-h-screen bg-green-500 flex items-center justify-center p-6 font-sans">
-        <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md text-center animate-bounce-short">
-          <div className="bg-green-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-14 h-14 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+      <div className="min-h-screen bg-green-600 flex items-center justify-center p-6 font-sans">
+        <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-sm text-center">
+          <div className="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h1 className="text-3xl font-black text-gray-800 mb-4">¡Todo listo!</h1>
-          <p className="text-gray-600 text-lg mb-8">
-            Ya estás en la lista. Por favor, toma asiento y aguarda a ser llamado en la pantalla.
+          <h1 className="text-3xl font-black text-slate-800 mb-3">¡Listo!</h1>
+          <p className="text-slate-500 text-base mb-8 leading-relaxed">
+            Ya estás registrado. Por favor tomá asiento y aguardá a ser llamado en la pantalla.
           </p>
-          <button 
+          <button
             onClick={() => setMensajeExito(false)}
-            className="w-full bg-gray-100 text-gray-500 font-bold py-4 rounded-2xl hover:bg-gray-200 transition-all"
+            className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-4 rounded-2xl transition-all active:scale-95"
           >
-            VOLVER A INICIO
+            VOLVER AL INICIO
           </button>
         </div>
       </div>
     );
   }
 
-  // FORMULARIO NORMAL
+  // ── FORMULARIO ────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-blue-600 flex items-center justify-center p-6 font-sans">
-      <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
-        
-        <div className="text-center mb-8">
-          <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
+
+        {/* Header */}
+        <div className="bg-blue-600 px-8 pt-8 pb-6 text-center">
+          <p className="text-blue-200 text-xs font-black uppercase tracking-widest mb-3">DermatoMaipu</p>
+          <div className="bg-white/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <svg className="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-black text-gray-800">¡Bienvenido!</h1>
-          <p className="text-gray-500 mt-2 font-medium">Completá tus datos para anunciarte</p>
+          <h1 className="text-2xl font-black text-white">¡Bienvenido!</h1>
+          <p className="text-blue-200 text-sm mt-1">Completá tus datos para anunciarte</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="px-8 py-7 space-y-5">
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Tu Nombre</label>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Nombre</label>
             <input
               type="text"
               name="nombre"
               value={paciente.nombre}
               onChange={handleChange}
               required
-              className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:border-blue-500 focus:bg-white outline-none transition-all text-lg"
+              autoComplete="off"
+              className="w-full px-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 focus:bg-white outline-none transition-all text-lg font-medium"
               placeholder="Ej: Juan"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Tu Apellido</label>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Apellido</label>
             <input
               type="text"
               name="apellido"
               value={paciente.apellido}
               onChange={handleChange}
               required
-              className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:border-blue-500 focus:bg-white outline-none transition-all text-lg"
+              autoComplete="off"
+              className="w-full px-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 focus:bg-white outline-none transition-all text-lg font-medium"
               placeholder="Ej: Pérez"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">¿Con quién te atendés?</label>
+            <label className="block text-sm font-bold text-slate-700 mb-2">¿Con quién te atendés?</label>
             <select
               name="medico"
               value={paciente.medico}
               onChange={handleChange}
               required
-              className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:border-blue-500 focus:bg-white outline-none transition-all text-lg appearance-none"
+              className="w-full px-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 focus:bg-white outline-none transition-all text-lg font-medium appearance-none"
             >
-              <option value="" disabled>Seleccioná a tu médico</option>
+              <option value="" disabled>Seleccioná tu médico</option>
               {medicosDisponibles.map((medico, index) => (
                 <option key={index} value={medico}>{medico}</option>
               ))}
@@ -149,17 +136,15 @@ const ClienteForm = () => {
           <button
             type="submit"
             disabled={enviando}
-            className={`w-full font-black py-5 px-4 rounded-2xl transition-all shadow-lg active:scale-95 text-xl ${
-              enviando ? "bg-gray-400 text-gray-200" : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
+            className={`w-full font-black py-5 rounded-2xl transition-all shadow-lg active:scale-95 text-lg mt-2
+              ${enviando
+                ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
           >
-            {enviando ? "REGISTRANDO..." : "ANUNCIARME"}
+            {enviando ? 'REGISTRANDO...' : 'ANUNCIARME'}
           </button>
         </form>
-
-        <p className="text-center text-gray-400 text-sm mt-8 font-medium">
-          DermatoClinic - Sistema de Autogestión
-        </p>
       </div>
     </div>
   );

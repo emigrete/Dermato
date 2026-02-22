@@ -15,23 +15,33 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Conectado a MongoDB Atlas'))
   .catch(err => console.error('Error de conexión:', err));
 
+// Helpers Argentina (UTC-3, sin DST) - no dependen de datos ICU del servidor
+const fechaHoyAR = () => {
+  const ar = new Date(Date.now() - 3 * 60 * 60 * 1000);
+  return ar.toISOString().slice(0, 10); // "YYYY-MM-DD"
+};
+const horaActualAR = () => {
+  const ar = new Date(Date.now() - 3 * 60 * 60 * 1000);
+  return ar.toISOString().slice(11, 16); // "HH:MM"
+};
+
 // Definición del Modelo de Turnos
 const turnoSchema = new mongoose.Schema({
   nombre: { type: String, required: true },
   apellido: { type: String, required: true },
   medico: { type: String, required: true },
-  hora_turno: { type: String, required: true },
   hora_llegada: { type: String, required: true },
+  fecha: { type: String, required: true },
   consultorio: { type: String, default: null },
-  estado: { 
-    type: String, 
-    enum: ['esperando', 'llamado', 'finalizado'], 
-    default: 'esperando' 
+  estado: {
+    type: String,
+    enum: ['esperando', 'llamado', 'finalizado'],
+    default: 'esperando'
   },
   fecha_llamado: { type: Date, default: null }
 });
 
-const Turno = mongoose.model('Turno', turnoSchema);
+const Turno = mongoose.models.Turno || mongoose.model('Turno', turnoSchema);
 
 // ==========================================
 // RUTAS (ENDPOINTS)
@@ -40,38 +50,35 @@ const Turno = mongoose.model('Turno', turnoSchema);
 // 1. RECEPCIÓN: Crear un nuevo turno
 app.post('/api/turnos', async (req, res) => {
   try {
-    const { nombre, apellido, medico, hora_turno } = req.body;
-    
-    const hora_llegada = new Date().toLocaleTimeString('es-AR', { 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      hour12: false 
-    });
+    const { nombre, apellido, medico } = req.body;
+
+    const hora_llegada = horaActualAR();
 
     const nuevoTurno = new Turno({
       nombre,
       apellido,
       medico,
-      hora_turno,
-      hora_llegada
+      hora_llegada,
+      fecha: fechaHoyAR()
     });
 
     await nuevoTurno.save();
-    
-    res.json({ 
-      id: nuevoTurno._id, 
+
+    res.json({
+      id: nuevoTurno._id,
       mensaje: 'Turno registrado en la nube',
-      hora_llegada: hora_llegada 
+      hora_llegada: hora_llegada
     });
   } catch (error) {
-    res.status(500).json({ error: 'Error al registrar el turno' });
+    console.error('Error al registrar turno:', error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
-// 2. MÉDICO: Ver pacientes en espera (Ordenados por llegada)
+// 2. MÉDICO: Ver pacientes en espera de hoy (Ordenados por llegada)
 app.get('/api/turnos/espera', async (req, res) => {
   try {
-    const turnos = await Turno.find({ estado: 'esperando' }).sort({ hora_llegada: 1 });
+    const turnos = await Turno.find({ estado: 'esperando', fecha: fechaHoyAR() }).sort({ hora_llegada: 1 });
     res.json(turnos);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener turnos' });
@@ -96,12 +103,12 @@ app.put('/api/turnos/:id/llamar', async (req, res) => {
   }
 });
 
-// 4. TELE: Obtener los últimos llamados para la pantalla
+// 4. TELE: Obtener los últimos llamados de hoy para la pantalla
 app.get('/api/turnos/tv', async (req, res) => {
   try {
-    const turnos = await Turno.find({ estado: 'llamado' })
+    const turnos = await Turno.find({ estado: 'llamado', fecha: fechaHoyAR() })
       .sort({ fecha_llamado: -1 })
-      .limit(4);
+      .limit(8);
     res.json(turnos);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener datos para la TV' });
