@@ -16,8 +16,9 @@ const Medico = () => {
   ];
 
   const listaConsultorios = [
-    "Consultorio 1", "Consultorio 2", "Consultorio 3", "Consultorio 4", "Consultorio 5"
-  ];
+  //  "Consultorio 1", "Consultorio 2", "Consultorio 3", "Consultorio 4", "Consultorio 5"
+   "Consultorio 1", "Consultorio 2"
+   ];
 
   // Al cargar, verificamos si hay una sesión guardada en el navegador
   useEffect(() => {
