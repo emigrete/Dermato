@@ -8,6 +8,7 @@ const Medico = () => {
   const [formSesion, setFormSesion] = useState({ nombre: '', consultorio: 'Consultorio 1' });
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const API_KEY = import.meta.env.VITE_API_KEY;
 
   const listaMedicos = [
     "Dra. Sonia Sladewski", "Dra. Sauro Virginia", "Dra. Pedrini Florencia",
@@ -26,7 +27,9 @@ const Medico = () => {
 
   const cargarPacientes = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/turnos/espera`);
+      const response = await fetch(`${API_URL}/api/turnos/espera`, {
+        headers: { 'x-api-key': API_KEY }
+      });
       const data = await response.json();
       setPacientes(data);
     } catch (error) {
@@ -51,7 +54,7 @@ const Medico = () => {
     try {
       const response = await fetch(`${API_URL}/api/turnos/${mongoId}/llamar`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
         body: JSON.stringify({ consultorio: medicoSesion.consultorio })
       });
       if (response.ok) cargarPacientes();

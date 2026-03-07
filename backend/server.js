@@ -2,20 +2,55 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middlewares
-app.use(cors()); 
-app.use(express.json()); 
+// ==========================================
+// MIDDLEWARES
+// ==========================================
+
+// CORS restrictivo
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
+  'http://localhost:4173'
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) callback(null, true);
+    else callback(new Error('Not allowed by CORS'));
+  }
+}));
+
+app.use(express.json());
+
+// Rate limiting en rutas de turnos
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: { error: 'Demasiadas solicitudes, intentá más tarde.' }
+});
+app.use('/api/turnos', limiter);
+
+// Middleware API Key
+const verificarApiKey = (req, res, next) => {
+  const key = req.headers['x-api-key'];
+  if (!key || key !== process.env.API_KEY) {
+    return res.status(401).json({ error: 'No autorizado' });
+  }
+  next();
+};
+app.use('/api', verificarApiKey);
 
 // Conexión a MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Conectado a MongoDB Atlas'))
   .catch(err => console.error('Error de conexión:', err));
 
-// Helpers Argentina (UTC-3, sin DST) - no dependen de datos ICU del servidor
+// Helpers Argentina (UTC-3, sin DST)
 const fechaHoyAR = () => {
   const ar = new Date(Date.now() - 3 * 60 * 60 * 1000);
   return ar.toISOString().slice(0, 10); // "YYYY-MM-DD"
@@ -43,6 +78,11 @@ const turnoSchema = new mongoose.Schema({
 
 const Turno = mongoose.models.Turno || mongoose.model('Turno', turnoSchema);
 
+const medicosValidos = [
+  "Dra. Sonia Sladewski", "Dra. Sauro Virginia", "Dra. Pedrini Florencia",
+  "Dra. Miller Romina", "Dra. Guadalupe Bengoa", "Dra. Lucila Monti", "Dra. Salazar Adriana"
+];
+
 // ==========================================
 // RUTAS (ENDPOINTS)
 // ==========================================
@@ -51,6 +91,16 @@ const Turno = mongoose.models.Turno || mongoose.model('Turno', turnoSchema);
 app.post('/api/turnos', async (req, res) => {
   try {
     const { nombre, apellido, medico } = req.body;
+
+    if (!nombre || !apellido || !medico) {
+      return res.status(400).json({ error: 'Faltan campos' });
+    }
+    if (nombre.length > 100 || apellido.length > 100) {
+      return res.status(400).json({ error: 'Campo demasiado largo' });
+    }
+    if (!medicosValidos.includes(medico)) {
+      return res.status(400).json({ error: 'Médico no válido' });
+    }
 
     const hora_llegada = horaActualAR();
 
@@ -71,7 +121,7 @@ app.post('/api/turnos', async (req, res) => {
     });
   } catch (error) {
     console.error('Error al registrar turno:', error.message);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 
@@ -91,6 +141,10 @@ app.put('/api/turnos/:id/llamar', async (req, res) => {
     const { consultorio } = req.body;
     const { id } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'ID inválido' });
+    }
+
     await Turno.findByIdAndUpdate(id, {
       estado: 'llamado',
       consultorio: consultorio,
@@ -99,7 +153,7 @@ app.put('/api/turnos/:id/llamar', async (req, res) => {
 
     res.json({ mensaje: `Paciente llamado al ${consultorio}` });
   } catch (error) {
-    res.status(500).json({ error: 'Error al llamar al paciente' });
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 
@@ -119,5 +173,5 @@ app.get('/api/turnos/tv', async (req, res) => {
 // INICIAR SERVIDOR
 // ==========================================
 app.listen(port, () => {
-  console.log(`🚀 Backend corriendo en http://localhost:${port}`);
+  console.log(`Backend corriendo en http://localhost:${port}`);
 });

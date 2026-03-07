@@ -10,6 +10,7 @@ const Tele = () => {
   const audioRef = useRef(null);
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const API_KEY = import.meta.env.VITE_API_KEY;
 
   // Reloj
   useEffect(() => {
@@ -26,7 +27,9 @@ const Tele = () => {
   useEffect(() => {
     const buscarDatos = async () => {
       try {
-        const resTv = await fetch(`${API_URL}/api/turnos/tv`);
+        const resTv = await fetch(`${API_URL}/api/turnos/tv`, {
+          headers: { 'x-api-key': API_KEY }
+        });
         const dataTv = await resTv.json();
 
         if (dataTv && dataTv.length > 0) {

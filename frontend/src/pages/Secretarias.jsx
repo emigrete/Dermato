@@ -6,6 +6,7 @@ const Secretarias = () => {
   const [filtroEstado, setFiltroEstado] = useState("todos");
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const API_KEY = import.meta.env.VITE_API_KEY;
 
   const listaMedicos = [
     "Dra. Sonia Sladewski", "Dra. Sauro Virginia", "Dra. Pedrini Florencia",
@@ -20,9 +21,10 @@ const Secretarias = () => {
 
   const cargarPacientes = async () => {
     try {
+      const headers = { 'x-api-key': API_KEY };
       const [resEspera, resLlamados] = await Promise.all([
-        fetch(`${API_URL}/api/turnos/espera`),
-        fetch(`${API_URL}/api/turnos/tv`)
+        fetch(`${API_URL}/api/turnos/espera`, { headers }),
+        fetch(`${API_URL}/api/turnos/tv`, { headers })
       ]);
       const [espera, llamados] = await Promise.all([
         resEspera.json(),

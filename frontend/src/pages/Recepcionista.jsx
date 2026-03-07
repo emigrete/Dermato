@@ -6,6 +6,7 @@ const ClienteForm = () => {
   const [mensajeExito, setMensajeExito] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const API_KEY = import.meta.env.VITE_API_KEY;
 
   const medicosDisponibles = [
     "Dra. Sonia Sladewski", "Dra. Sauro Virginia", "Dra. Pedrini Florencia",
@@ -23,7 +24,7 @@ const ClienteForm = () => {
     try {
       const response = await fetch(`${API_URL}/api/turnos`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
         body: JSON.stringify({
           nombre: paciente.nombre.trim(),
           apellido: paciente.apellido.trim(),
