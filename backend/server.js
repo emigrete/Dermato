@@ -34,7 +34,7 @@ const limiter = rateLimit({
   max: 30,
   message: { error: 'Demasiadas solicitudes, intentá más tarde.' }
 });
-app.use('/api/turnos', limiter);
+app.post('/api/turnos', limiter);
 
 // Middleware API Key
 const verificarApiKey = (req, res, next) => {
