@@ -162,8 +162,7 @@ app.put('/api/turnos/:id/llamar', async (req, res) => {
 app.get('/api/turnos/tv', async (req, res) => {
   try {
     const turnos = await Turno.find({ estado: 'llamado', fecha: fechaHoyAR() })
-      .sort({ fecha_llamado: -1 })
-      .limit(8);
+      .sort({ fecha_llamado: -1 });
     res.json(turnos);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener datos para la TV' });

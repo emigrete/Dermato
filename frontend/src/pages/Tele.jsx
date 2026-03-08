@@ -42,7 +42,7 @@ const Tele = () => {
           }
           ultimoIdLlamado.current = entrante._id;
           setTurnoActual(entrante);
-          setHistorial(dataTv.slice(1));
+          setHistorial(dataTv.slice(1, 8));
         }
       } catch (error) {
         console.error('Error buscando turnos:', error);
