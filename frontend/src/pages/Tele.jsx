@@ -79,7 +79,7 @@ const Tele = () => {
 
       <audio
         ref={audioRef}
-        src="https://actions.google.com/sounds/v1/cartoon/cartoon_cowbell.ogg?hl=es-419"
+        src="https://firebasestorage.googleapis.com/v0/b/triggerapp-dd86c.firebasestorage.app/o/ding-dong.mp3.mp3?alt=media&token=d3fac2b9-4241-4183-950c-d45c7534ea16"
         preload="auto"
       />
 
