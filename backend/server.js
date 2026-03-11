@@ -169,6 +169,49 @@ app.get('/api/turnos/tv', async (req, res) => {
   }
 });
 
+// 5. SECRETARÍA: Editar nombre/apellido de un paciente
+app.put('/api/turnos/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, apellido } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'ID inválido' });
+    }
+    if (!nombre || !apellido) {
+      return res.status(400).json({ error: 'Nombre y apellido son requeridos' });
+    }
+    if (nombre.length > 100 || apellido.length > 100) {
+      return res.status(400).json({ error: 'Campo demasiado largo' });
+    }
+
+    const turno = await Turno.findByIdAndUpdate(id, { nombre, apellido }, { new: true });
+    if (!turno) return res.status(404).json({ error: 'Turno no encontrado' });
+
+    res.json({ mensaje: 'Paciente actualizado', turno });
+  } catch (error) {
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// 6. SECRETARÍA: Eliminar un turno
+app.delete('/api/turnos/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'ID inválido' });
+    }
+
+    const turno = await Turno.findByIdAndDelete(id);
+    if (!turno) return res.status(404).json({ error: 'Turno no encontrado' });
+
+    res.json({ mensaje: 'Turno eliminado correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 // ==========================================
 // INICIAR SERVIDOR
 // ==========================================
